@@ -36,44 +36,62 @@ typedef struct Note
     float beats;
 } Note;
 
-Node song[] = {
-    {REST, 1}, {REST, 1}, {G5, 0.5}, {G5, 0.5}, {A5, 1}, {G5, 1}, {C6, 1}, {B5, 1}};
+Note song[] = {
+{G4, 0.5}, {G4, 0.5}, {A5, 1}, {G5, 1}, {C6, 1}, {B5, 1}};
+
+void Play_Note(Note note);
+void HAL_Delay_us(uint16_t us);
 
 void Play_Song()
 {
     int i = 0;
     int len = sizeof(song) / sizeof(Note);
-    for (i = 0; i <= len; i++)
+    HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_4); // 启动定时器4的PWM输出
+    HAL_TIM_Base_Start(&htim1);
+    for (i = 0; i < len; i++)
     {
         // 播放音符
-        Play_Node(song[i]);
+        Play_Note(song[i]);
     }
 }
 
-Play_Node(Note note)
+
+void Play_Note(Note note)
 {
     // 一拍的时间(us)
-    float beat_time = 1000000 * 60 / BPM;
+    uint32_t beat_time = 1000000 * 60 / BPM;
 
     // 计算音符持续时间
-    float duration = beat_time / note.beats;
+    uint32_t duration = beat_time / note.beats;
 
     // 休止符，空一拍
     if (note.note_name == REST)
     {
-        HAL_Delay_us(duration);
+        HAL_Delay(300);
         return;
     }
 
     // 计算一个音符的周期(arr的值)
-    float arr = 1000000 / note.note_name;
+    uint32_t arr = 1000000 / note.note_name;
 
-    //设置PWM频率（输出指定频率的声音）
-    __HAL_TIM_SET_AUTORELOAD(htim4, arr);
+    // 设置PWM频率（输出指定频率的声音）
+    __HAL_TIM_SET_AUTORELOAD(&htim4, arr);
+    __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_4, arr / 2); // 占空比50%
+    __HAL_TIM_SetCounter(&htim4, 0);
 
-    //持续播放音符到指定时间
+    // 持续播放音符到指定时间
     HAL_Delay_us(duration);
+    // HAL_Delay(500);
+}
 
-    // 关闭定时器4
-    __HAL_TIM_SET_AUTORELOAD(htim4, 0);
+void HAL_Delay_us(uint16_t us)
+{
+    __HAL_TIM_SetAutoreload(&htim1, 0xFFFF);
+    __HAL_TIM_SetCounter(&htim1, 0);
+    __HAL_TIM_ENABLE(&htim1);
+
+    while (__HAL_TIM_GET_COUNTER(&htim1) < us)
+    {
+    }
+    __HAL_TIM_DISABLE(&htim1);
 }
