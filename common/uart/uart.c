@@ -114,7 +114,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 __weak void HAL_UART_RxCpltFunction(UART_HandleTypeDef *huart, uint8_t pdata[], uint8_t size)
 {
     // 接收到完整的一行数据，进行处理
-    // HAL_UART_Transmit(huart, pdata, rx_len, 1000);        // 回显收到的数据
-    // HAL_UART_Transmit(huart, (uint8_t *)"\r\n", 2, 1000); // 发送换行
-
+    HAL_UART_Transmit(huart, pdata, rx_len, 1000);        // 回显收到的数据
+    HAL_UART_Transmit(huart, (uint8_t *)"\r\n", 2, 1000); // 发送换行
 }

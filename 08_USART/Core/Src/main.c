@@ -101,10 +101,11 @@ int main(void)
   HAL_UART_Receive_IT(&huart1, &UART_RX_DATA, 1);
   while (1)
   {
-    printf("Hello STM32!\r\n");
-    
+
     HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
-    HAL_Delay(500);
+    HAL_Delay(1000);
+    OLED_Clear();
+    OLED_ShowString(1, 1, "hello");
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

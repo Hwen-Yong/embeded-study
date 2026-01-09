@@ -2,6 +2,7 @@
 #define __OLED_H
 
 #include "i2c.h"
+#include "oled_font.h"
 
 void OLED_Clear(void);
 
